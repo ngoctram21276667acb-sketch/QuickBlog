@@ -5,13 +5,12 @@ import BlogSection from "../components/BlogSection/BlogSection";
 import Footer from "../components/Footer/Footer";
 
 function Home({ darkMode, setDarkMode }) {
+  // CHỈ GIỮ LẠI STATE NÀY Ở ĐÂY
   const [searchTerm, setSearchTerm] = useState("");
-
   return (
     <>
       <Header darkMode={darkMode} setDarkMode={setDarkMode} />
 
-      {/*Truyền state tìm kiếm vào HeroSection */}
       <HeroSection
         darkMode={darkMode}
         searchTerm={searchTerm}
