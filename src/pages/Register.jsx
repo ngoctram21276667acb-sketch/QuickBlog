@@ -1,4 +1,5 @@
 import logo from "../assets/logo.png";
+import { Link } from "react-router-dom";
 function Register() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-[#1e1b4b] via-[#4f46e5] to-[#22d3ee] p-4">
@@ -48,12 +49,12 @@ function Register() {
         {/* Chuyển sang trang Đăng nhập */}
         <div className="mt-6 text-center text-sm text-slate-500">
           Already have an account?{" "}
-          <a
-            href="/login"
+          <Link
+            to="/login"
             className="font-medium text-[#5B4BFF] hover:underline"
           >
             Login
-          </a>
+          </Link>
         </div>
       </div>
     </div>

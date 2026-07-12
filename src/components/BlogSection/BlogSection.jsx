@@ -1,7 +1,8 @@
 import BlogCard from "../BlogCard/BlogCard";
+import { useState, useEffect } from "react";
 
-function BlogSection({ darkMode, searchTerm }) {
-  const allBlogs = [
+function BlogSection({ darkMode, searchTerm, posts }) {
+  const allBlogs = posts || [
     {
       id: 1,
       title: "Blog Post 1",
@@ -13,14 +14,14 @@ function BlogSection({ darkMode, searchTerm }) {
       category: "Design",
     },
   ];
-
   // Logic lọc
   const filteredBlogs = allBlogs.filter((blog) => {
     if (!searchTerm) return true;
     const keyword = searchTerm.toLowerCase();
     return (
-      blog.title?.toLowerCase().includes(keyword) ||
-      blog.category?.toLowerCase().includes(keyword)
+      (blog.title && blog.title.toLowerCase().includes(keyword)) ||
+      (blog.category && blog.category.toLowerCase().includes(keyword)) ||
+      (blog.description && blog.description.toLowerCase().includes(keyword))
     );
   });
 
@@ -30,7 +31,7 @@ function BlogSection({ darkMode, searchTerm }) {
         {filteredBlogs.length > 0 ? (
           <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
             {filteredBlogs.map((blog) => (
-              <BlogCard key={blog.id} data={blog} darkMode={darkMode} />
+              <BlogCard key={blog._id} data={blog} darkMode={darkMode} />
             ))}
           </div>
         ) : (

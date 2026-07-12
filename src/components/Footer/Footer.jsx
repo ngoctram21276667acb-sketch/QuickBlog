@@ -4,7 +4,7 @@ function Footer({ darkMode }) {
   return (
     <footer className="border-t border-slate-200 bg-[#f8f9fb] py-16 transition-colors duration-300 dark:border-slate-700 dark:bg-[#030817]">
       <div className="mx-auto grid max-w-7xl grid-cols-1 gap-12 px-6 md:grid-cols-4">
-        {/* Cột 1: Logo và Đoạn văn */}
+        {/* Cột 1: Logo  */}
         <div className="flex flex-col gap-6">
           <img src={logo} alt="QuickBlog" className="h-12 w-auto self-start" />
           <p className="text-base leading-relaxed text-slate-700 dark:text-slate-300">

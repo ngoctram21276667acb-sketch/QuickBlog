@@ -52,8 +52,8 @@ function Header({ darkMode, setDarkMode }) {
                     : "border-slate-200 bg-white text-slate-700"
                 }`}
               >
-                <a
-                  href="#"
+                <Link
+                  to="/login"
                   className={`flex items-center gap-3 px-4 py-3 text-sm font-medium transition
                   ${darkMode ? "hover:bg-[#172033]" : "hover:bg-slate-50"}`}
                 >
@@ -71,14 +71,14 @@ function Header({ darkMode, setDarkMode }) {
                     />
                   </svg>
                   My Posts
-                </a>
+                </Link>
 
                 <div
                   className={`h-px w-full ${darkMode ? "bg-slate-800" : "bg-slate-100"}`}
                 ></div>
 
-                <a
-                  href="/register"
+                <Link
+                  to="/register"
                   className={`flex items-center gap-3 px-4 py-3 text-sm font-medium transition
                   ${darkMode ? "hover:bg-[#172033]" : "hover:bg-slate-50"}`}
                 >
@@ -96,7 +96,7 @@ function Header({ darkMode, setDarkMode }) {
                     />
                   </svg>
                   Sign Up
-                </a>
+                </Link>
               </div>
             )}
           </div>
