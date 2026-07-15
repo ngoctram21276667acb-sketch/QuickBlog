@@ -8,7 +8,11 @@ function Header({ darkMode, setDarkMode }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (
-    <header className="bg-white shadow-sm transition-colors duration-300 dark:bg-[#030817]">
+    <header
+      className={`shadow-sm transition-colors duration-300 ${
+        darkMode ? "bg-[#030817] text-white" : "bg-white text-slate-900"
+      }`}
+    >
       <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-5">
         <img src={logo} alt="QuickBlog" className="h-12" />
 

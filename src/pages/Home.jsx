@@ -3,7 +3,7 @@ import Header from "../components/Header/Header";
 import HeroSection from "../components/HeroSection/HeroSection";
 import BlogSection from "../components/BlogSection/BlogSection";
 import Footer from "../components/Footer/Footer";
-import { getPosts } from "@/components/Sevices/postServices";
+import { getPosts } from "@/Services/postServices";
 import { useEffect } from "react";
 
 function Home({ darkMode, setDarkMode }) {
