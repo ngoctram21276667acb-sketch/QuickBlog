@@ -1,17 +1,25 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import logo from "../assets/logo.png";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { loginUser } from "../Services/authService.js";
+import { toast } from "react-hot-toast";
 
 function Login() {
-  // State
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  // Hàm xử lý đăng nhập
-  const handleLogin = async () => {
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      navigate("/");
+    }
+  }, [navigate]);
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
     setLoading(true);
     setError("");
 
@@ -23,7 +31,10 @@ function Login() {
 
       localStorage.setItem("token", JSON.stringify(response));
 
-      window.location.href = "/";
+      // Hiển thị thông báo đăng nhập thành công
+      toast.success("Login successful");
+
+      navigate("/");
     } catch (err) {
       setError("Sai email hoặc mật khẩu");
     } finally {
@@ -39,14 +50,7 @@ function Login() {
           <img src={logo} alt="Logo" className="h-10 w-auto" />
         </div>
 
-        {/* Form */}
-        <form
-          className="space-y-4"
-          onSubmit={(e) => {
-            e.preventDefault();
-            handleLogin();
-          }}
-        >
+        <form className="space-y-4" onSubmit={handleLogin}>
           {/* Email */}
           <div>
             <input
@@ -84,7 +88,6 @@ function Login() {
           </button>
         </form>
 
-        {/* Chuyển sang trang đăng ký */}
         <div className="mt-6 text-center text-sm text-slate-500">
           Don't have an account?{" "}
           <Link to="/register" className="text-[#5B4BFF] hover:underline">

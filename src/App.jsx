@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-
+import { Toaster } from "react-hot-toast";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
@@ -12,9 +12,11 @@ import Layout from "./components/Layout";
 
 function App() {
   const [darkMode, setDarkMode] = useState(false);
+  const isLoggedIn = !!localStorage.getItem("token");
 
   return (
     <BrowserRouter>
+      <Toaster position="top-right" reverseOrder={false} />
       <div
         className={`min-h-screen transition-colors duration-300 ${
           darkMode ? "bg-[#030817] text-white" : "bg-white text-slate-900"
@@ -46,20 +48,28 @@ function App() {
           <Route path="/register" element={<Register />} />
 
           <Route
-            path="/mypost"
+            path="/create-blog"
             element={
-              <Layout darkMode={darkMode} setDarkMode={setDarkMode}>
-                <MyPost />
-              </Layout>
+              isLoggedIn ? (
+                <Layout darkMode={darkMode} setDarkMode={setDarkMode}>
+                  <CreateBlog />
+                </Layout>
+              ) : (
+                <Navigate to="/login" replace />
+              )
             }
           />
 
           <Route
-            path="/create-blog"
+            path="/mypost"
             element={
-              <Layout darkMode={darkMode} setDarkMode={setDarkMode}>
-                <CreateBlog />
-              </Layout>
+              isLoggedIn ? (
+                <Layout darkMode={darkMode} setDarkMode={setDarkMode}>
+                  <MyPost />
+                </Layout>
+              ) : (
+                <Navigate to="/login" replace />
+              )
             }
           />
         </Routes>
