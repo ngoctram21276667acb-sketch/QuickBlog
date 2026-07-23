@@ -47,9 +47,12 @@ export const BlogDetails = () => {
         />
         <div className="prose-content mx-auto max-w-2xl text-left text-base leading-7 text-black dark:text-slate-100">
           <p>
-            {post.content ||
-              "Discover how AI is transforming industries, improving productivity,"}{" "}
-            and creating new opportunities around the world.
+            {/* preview content html => using dangerouslySetInnerHTML */}
+            {post.content ? (
+              <div dangerouslySetInnerHTML={{ __html: post.content }} />
+            ) : (
+              "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed euismod, nunc ut aliquam aliquam, nunc nisl aliquet nisl, eget aliquam nunc nisl eget nunc. Sed euismod, nunc ut aliquam aliquam, nunc nisl aliquet nisl, eget aliquam nunc nisl eget nunc."
+            )}
           </p>
         </div>
       </article>

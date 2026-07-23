@@ -26,9 +26,13 @@ function BlogCard({ data }) {
 
           {/* Mô tả */}
           <p className="mt-3 line-clamp-3 text-slate-600 dark:text-slate-300">
-            {data.content ||
-              "Discover how AI is transforming industries, improving productivity,"}
-            and creating new opportunities around the world.
+            {/* preview content html => using dangerouslySetInnerHTML */}
+            {data.content ? (
+              <div dangerouslySetInnerHTML={{ __html: data.content }} />
+            ) : (
+              "Discover how AI is transforming industries, improving productivity," +
+              " and creating new opportunities around the world."
+            )}
           </p>
 
           {/* Author */}
