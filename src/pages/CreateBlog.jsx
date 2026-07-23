@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { Editor } from "@tinymce/tinymce-react";
 import {
   Undo,
   Redo,
@@ -16,6 +17,8 @@ import {
   Image as ImageIcon,
   Code,
 } from "lucide-react";
+import { toast } from "react-hot-toast";
+import { createPost } from "../Services/postServices.js";
 
 const CreateBlog = () => {
   const navigate = useNavigate();
@@ -25,6 +28,14 @@ const CreateBlog = () => {
   const [content, setContent] = useState("");
   const [tags, setTags] = useState([]);
   const [tagInput, setTagInput] = useState("");
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [imageUrl, setImageUrl] = useState("");
+  const [imageUploading, setImageUploading] = useState(false);
+
+  const CLOUDINARY_CLOUD_NAME = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
+  const CLOUDINARY_UPLOAD_PRESET = import.meta.env
+    .VITE_CLOUDINARY_UPLOAD_PRESET;
+  const CLOUDINARY_URL = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`;
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -46,16 +57,77 @@ const CreateBlog = () => {
     setTags(tags.filter((_, index) => index !== indexToRemove));
   };
 
-  const handleSubmit = (e) => {
+  const uploadImageToCloudinary = async (file) => {
+    if (!CLOUDINARY_CLOUD_NAME || !CLOUDINARY_UPLOAD_PRESET) {
+      toast.error(
+        "Thiếu cấu hình Cloudinary. Vui lòng thiết lập VITE_CLOUDINARY_CLOUD_NAME và VITE_CLOUDINARY_UPLOAD_PRESET.",
+      );
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
+
+    try {
+      setImageUploading(true);
+      const response = await fetch(CLOUDINARY_URL, {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error?.message || "Upload Cloudinary thất bại.");
+      }
+
+      setImageUrl(data.secure_url);
+      toast.success("Ảnh đã được upload lên Cloudinary.");
+    } catch (error) {
+      console.error("Cloudinary upload error:", error);
+      toast.error("Không thể upload ảnh. Vui lòng thử lại.");
+    } finally {
+      setImageUploading(false);
+    }
+  };
+
+  const handleImageChange = async (event) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    setSelectedImage(file);
+    await uploadImageToCloudinary(file);
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
+    if (!title.trim()) {
+      toast.error("Vui lòng nhập tiêu đề blog.");
+      return;
+    }
+
+    if (!imageUrl) {
+      toast.error("Vui lòng upload ảnh blog trước khi tạo.");
+      return;
+    }
+
+    const token = localStorage.getItem("token");
     const blogData = {
       title,
       content,
       tags,
+      image: imageUrl,
     };
 
-    console.log("Dữ liệu sẵn sàng gửi API:", blogData);
+    try {
+      await createPost(blogData, token);
+      toast.success("Tạo blog thành công.");
+      navigate("/home");
+    } catch (error) {
+      toast.error("Có lỗi khi tạo blog. Vui lòng thử lại.");
+      console.error("Create blog error:", error);
+    }
   };
 
   if (isLoading) {
@@ -80,17 +152,37 @@ const CreateBlog = () => {
               className="hidden"
               type="file"
               id="blog-image-input"
+              onChange={handleImageChange}
             />
             <button
               type="button"
               onClick={() =>
                 document.getElementById("blog-image-input").click()
               }
+              disabled={imageUploading}
               className="flex h-24 w-full items-center justify-center gap-3 rounded-lg border border-dashed border-slate-300 bg-white text-slate-600 transition hover:border-indigo-400 hover:text-indigo-600 disabled:opacity-60"
             >
               <ImageIcon className="h-5 w-5" />
-              Click to upload image
+              {imageUploading ? "Uploading image..." : "Click to upload image"}
             </button>
+          </div>
+          <div className="mt-3 space-y-2 text-sm text-slate-600">
+            {imageUrl ? (
+              <div className="rounded-lg border border-slate-200 bg-slate-50 p-2">
+                <p className="mb-2 font-medium text-slate-700">
+                  Ảnh đã upload:
+                </p>
+                <img
+                  src={imageUrl}
+                  alt="Uploaded blog preview"
+                  className="h-40 w-full rounded-md object-cover"
+                />
+              </div>
+            ) : (
+              <p className="text-slate-500">
+                Chọn ảnh để upload lên Cloudinary trước khi tạo blog.
+              </p>
+            )}
           </div>
         </label>
 
@@ -114,124 +206,26 @@ const CreateBlog = () => {
             Blog Content
           </span>
           <div className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
-            <div className="flex flex-col min-h-[420px]">
-              {/* Menu Bar */}
-              <div className="px-5 py-3 flex gap-5 text-[14px] text-slate-700 font-medium">
-                <span className="cursor-pointer hover:text-black">File</span>
-                <span className="cursor-pointer hover:text-black">Edit</span>
-                <span className="cursor-pointer hover:text-black">View</span>
-                <span className="cursor-pointer hover:text-black">Insert</span>
-                <span className="cursor-pointer hover:text-black">Format</span>
-                <span className="cursor-pointer hover:text-black">Tools</span>
-                <span className="cursor-pointer hover:text-black">Table</span>
-              </div>
-
-              {/* Toolbar (Đã làm lại chuẩn xác Hình 1) */}
-              <div className="px-5 py-2 flex flex-wrap items-center gap-7 bg-white border-b border-slate-100">
-                {/* Undo / Redo */}
-                <div className="flex items-center gap-4 text-slate-400">
-                  <Undo
-                    className="w-[18px] h-[18px] cursor-pointer hover:text-slate-700"
-                    strokeWidth={2.5}
-                  />
-                  <Redo
-                    className="w-[18px] h-[18px] cursor-pointer hover:text-slate-700"
-                    strokeWidth={2.5}
-                  />
-                </div>
-
-                {/* Paragraph Dropdown */}
-                <div className="flex items-center gap-3 bg-slate-50 hover:bg-slate-100 px-3 py-1.5 rounded-md cursor-pointer text-slate-700 transition-colors">
-                  <span className="text-[13px] font-medium pr-5">
-                    Paragraph
-                  </span>
-                  <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
-                </div>
-
-                {/* Bold / Italic */}
-                <div className="flex items-center gap-4 text-slate-700">
-                  <span className="font-bold cursor-pointer text-[16px] hover:text-black">
-                    B
-                  </span>
-                  <span className="italic cursor-pointer text-[16px] font-serif hover:text-black">
-                    I
-                  </span>
-                </div>
-
-                {/* Alignment */}
-                <div className="flex items-center gap-4 text-slate-700">
-                  <AlignLeft
-                    className="w-[18px] h-[18px] cursor-pointer hover:text-black"
-                    strokeWidth={2.5}
-                  />
-                  <AlignCenter
-                    className="w-[18px] h-[18px] cursor-pointer hover:text-black"
-                    strokeWidth={2.5}
-                  />
-                  <AlignRight
-                    className="w-[18px] h-[18px] cursor-pointer hover:text-black"
-                    strokeWidth={2.5}
-                  />
-                  <AlignJustify
-                    className="w-[18px] h-[18px] cursor-pointer hover:text-black"
-                    strokeWidth={2.5}
-                  />
-                </div>
-
-                {/* Lists & Indent */}
-                <div className="flex items-center gap-4 text-slate-700">
-                  <List
-                    className="w-[18px] h-[18px] cursor-pointer hover:text-black"
-                    strokeWidth={2.5}
-                  />
-                  <ListOrdered
-                    className="w-[18px] h-[18px] cursor-pointer hover:text-black"
-                    strokeWidth={2.5}
-                  />
-                  <IndentDecrease
-                    className="w-[18px] h-[18px] cursor-pointer text-slate-300"
-                    strokeWidth={2.5}
-                  />
-                  <IndentIncrease
-                    className="w-[18px] h-[18px] cursor-pointer hover:text-black"
-                    strokeWidth={2.5}
-                  />
-                </div>
-
-                {/* Inserts (Link, Image, Code) */}
-                <div className="flex items-center gap-4 text-slate-700">
-                  <LinkIcon
-                    className="w-[18px] h-[18px] cursor-pointer hover:text-black"
-                    strokeWidth={2.5}
-                  />
-                  <ImageIcon
-                    className="w-[18px] h-[18px] cursor-pointer hover:text-black"
-                    strokeWidth={2.5}
-                  />
-                  <Code
-                    className="w-[18px] h-[18px] cursor-pointer hover:text-black"
-                    strokeWidth={2.5}
-                  />
-                </div>
-              </div>
-
-              {/* Textarea */}
-              <textarea
-                value={content}
-                onChange={(e) => setContent(e.target.value)}
-                className="w-full flex-1 p-5 border-none resize-none focus:outline-none text-[15px] text-slate-900 bg-white"
-                style={{ minHeight: "320px" }}
-              />
-
-              {/* Status Bar */}
-              <div className="bg-slate-50 border-t border-slate-100 px-4 py-1.5 flex justify-between text-xs text-slate-400">
-                <span>p</span>
-                <span className="flex items-center gap-1 cursor-default select-none">
-                  0 words
-                  <span className="text-[9px] text-slate-300 ml-1">◢</span>
-                </span>
-              </div>
-            </div>
+            <Editor
+              apiKey="ljg8mraaidq9btpn94yn3gsktq73z3fnru24rv5hr8dk79bs"
+              value={content}
+              onEditorChange={(newContent) => setContent(newContent)}
+              init={{
+                height: 420,
+                menubar: true,
+                plugins: [
+                  "advlist autolink lists link image charmap preview anchor",
+                  "searchreplace visualblocks code fullscreen",
+                  "insertdatetime media table paste code help wordcount",
+                ],
+                toolbar:
+                  "undo redo | formatselect | bold italic underline | " +
+                  "alignleft aligncenter alignright alignjustify | " +
+                  "bullist numlist outdent indent | removeformat | help",
+                content_style:
+                  "body { font-family:Inter,Arial,sans-serif; font-size:14px; color:#0f172a; }",
+              }}
+            />
           </div>
         </label>
 

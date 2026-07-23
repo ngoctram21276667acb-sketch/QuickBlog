@@ -8,8 +8,9 @@ import { BlogDetails } from "./pages/BlogDetails";
 import MyPost from "./pages/MyPost";
 import CreateBlog from "./pages/CreateBlog";
 import UserManagement from "./pages/UserManagement";
-
 import Layout from "./components/Layout";
+// import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute";
+import AdminRoute from "./components/AdminRoute/AdminRoute";
 
 function App() {
   const [darkMode, setDarkMode] = useState(false);
@@ -60,6 +61,7 @@ function App() {
               )
             }
           />
+          <Route path="/create-blog" element={<CreateBlog />} />
 
           <Route
             path="/mypost"
@@ -73,18 +75,17 @@ function App() {
               )
             }
           />
-          <Route
-            path="/user-management"
-            element={
-              isLoggedIn ? (
+          {/* sử dụng AdminRoute cho các trang yêu cầu quyền admin */}
+          <Route element={<AdminRoute />}>
+            <Route
+              path="/user-management"
+              element={
                 <Layout darkMode={darkMode} setDarkMode={setDarkMode}>
                   <UserManagement />
                 </Layout>
-              ) : (
-                <Navigate to="/login" replace />
-              )
-            }
-          />
+              }
+            />
+          </Route>
         </Routes>
       </div>
     </BrowserRouter>

@@ -67,7 +67,7 @@ function Header({ darkMode, setDarkMode }) {
 
         <nav className="flex items-center gap-5">
           <div
-            onClick={() => checkTokenAndNavigate("/create")}
+            onClick={() => checkTokenAndNavigate("/create-blog")}
             className="flex items-center gap-2 rounded-xl bg-[#5B4BFF] px-6 py-3 font-semibold text-white transition hover:bg-[#6f61ff]"
           >
             <FaPlus />
@@ -110,9 +110,13 @@ function Header({ darkMode, setDarkMode }) {
                     {isAdmin && (
                       <>
                         <button
-                          onClick={() => handleProtectedRoute("/user-management")}
+                          onClick={() =>
+                            handleProtectedRoute("/user-management")
+                          }
                           className={`flex w-full items-center gap-3 px-4 py-3 text-left text-sm font-medium transition ${
-                            darkMode ? "hover:bg-[#172033]" : "hover:bg-slate-50"
+                            darkMode
+                              ? "hover:bg-[#172033]"
+                              : "hover:bg-slate-50"
                           }`}
                         >
                           <ClipboardList size={18} className="text-slate-500" />
