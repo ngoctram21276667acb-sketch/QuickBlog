@@ -11,29 +11,44 @@ import {
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
+import { Link } from "react-router-dom";
 
 function Header({ darkMode, setDarkMode }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const navigate = useNavigate();
 
-  // Kiểm tra trạng thái đăng nhập
+  const storedUser = localStorage.getItem("user");
+  const user = storedUser ? JSON.parse(storedUser) : null;
+
   const isLoggedIn = !!localStorage.getItem("token");
+  const isAdmin = user?.role === "admin";
 
   const handleProtectedRoute = (targetPath) => {
     setIsMenuOpen(false);
-    const currentToken = localStorage.getItem("token");
     if (!isLoggedIn) {
       navigate("/login");
-    } else {
-      navigate(targetPath);
+      return;
     }
+
+    navigate(targetPath);
   };
 
   const handleLogout = () => {
     localStorage.removeItem("token");
+    localStorage.removeItem("user");
     setIsMenuOpen(false);
     toast.success("Logged out");
     navigate("/login");
+  };
+
+  const checkTokenAndNavigate = (targetPath) => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      navigate("/login");
+      return;
+    }
+
+    navigate(targetPath);
   };
 
   return (
@@ -51,13 +66,13 @@ function Header({ darkMode, setDarkMode }) {
         />
 
         <nav className="flex items-center gap-5">
-          <button
-            onClick={() => handleProtectedRoute("/create-blog")}
-            className="flex items-center gap-2 rounded-xl bg-[#5B4BFF] px-6 py-3 font-semibold text-white hover:bg-[#6f61ff] transition"
+          <div
+            onClick={() => checkTokenAndNavigate("/create")}
+            className="flex items-center gap-2 rounded-xl bg-[#5B4BFF] px-6 py-3 font-semibold text-white transition hover:bg-[#6f61ff]"
           >
             <FaPlus />
             Create Blog
-          </button>
+          </div>
 
           <button
             onClick={() => setDarkMode(!darkMode)}
@@ -84,7 +99,7 @@ function Header({ darkMode, setDarkMode }) {
 
             {isMenuOpen && (
               <div
-                className={`absolute right-0 mt-3 w-48 overflow-hidden rounded-xl border shadow-lg z-50 transition-colors ${
+                className={`absolute right-0 z-50 mt-3 w-48 overflow-hidden rounded-xl border shadow-lg transition-colors ${
                   darkMode
                     ? "border-slate-700 bg-[#0a1122] text-slate-200"
                     : "border-slate-200 bg-white text-slate-700"
@@ -92,9 +107,29 @@ function Header({ darkMode, setDarkMode }) {
               >
                 {isLoggedIn ? (
                   <>
+                    {isAdmin && (
+                      <>
+                        <button
+                          onClick={() => handleProtectedRoute("/user-management")}
+                          className={`flex w-full items-center gap-3 px-4 py-3 text-left text-sm font-medium transition ${
+                            darkMode ? "hover:bg-[#172033]" : "hover:bg-slate-50"
+                          }`}
+                        >
+                          <ClipboardList size={18} className="text-slate-500" />
+                          User Management
+                        </button>
+
+                        <div
+                          className={`h-px w-full ${
+                            darkMode ? "bg-slate-800" : "bg-slate-100"
+                          }`}
+                        />
+                      </>
+                    )}
+
                     <button
                       onClick={() => handleProtectedRoute("/mypost")}
-                      className={`flex w-full items-center gap-3 px-4 py-3 text-sm font-medium transition text-left ${
+                      className={`flex w-full items-center gap-3 px-4 py-3 text-left text-sm font-medium transition ${
                         darkMode ? "hover:bg-[#172033]" : "hover:bg-slate-50"
                       }`}
                     >
@@ -106,11 +141,11 @@ function Header({ darkMode, setDarkMode }) {
                       className={`h-px w-full ${
                         darkMode ? "bg-slate-800" : "bg-slate-100"
                       }`}
-                    ></div>
+                    />
 
                     <button
                       onClick={handleLogout}
-                      className={`flex w-full items-center gap-3 px-4 py-3 text-sm font-medium transition text-left ${
+                      className={`flex w-full items-center gap-3 px-4 py-3 text-left text-sm font-medium transition ${
                         darkMode ? "hover:bg-[#172033]" : "hover:bg-slate-50"
                       }`}
                     >
@@ -121,27 +156,27 @@ function Header({ darkMode, setDarkMode }) {
                 ) : (
                   <>
                     <button
-                      onClick={() => handleProtectedRoute("/mypost")}
-                      className={`flex w-full items-center gap-3 px-4 py-3 text-sm font-medium transition text-left ${
+                      onClick={() => handleProtectedRoute("/register")}
+                      className={`flex w-full items-center gap-3 px-4 py-3 text-left text-sm font-medium transition ${
                         darkMode ? "hover:bg-[#172033]" : "hover:bg-slate-50"
                       }`}
                     >
                       <FileText size={18} className="text-slate-500" />
-                      My Posts
+                      Sign Up
                     </button>
 
                     <div
                       className={`h-px w-full ${
                         darkMode ? "bg-slate-800" : "bg-slate-100"
                       }`}
-                    ></div>
+                    />
 
                     <button
                       onClick={() => {
                         setIsMenuOpen(false);
                         navigate("/login");
                       }}
-                      className={`flex w-full items-center gap-3 px-4 py-3 text-sm font-medium transition text-left ${
+                      className={`flex w-full items-center gap-3 px-4 py-3 text-left text-sm font-medium transition ${
                         darkMode ? "hover:bg-[#172033]" : "hover:bg-slate-50"
                       }`}
                     >

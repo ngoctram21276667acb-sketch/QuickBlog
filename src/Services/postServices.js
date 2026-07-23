@@ -1,6 +1,7 @@
 import axios from "axios";
 
 const API_BASE_URL = "https://api-blog-af3u.onrender.com/api";
+
 export const getPosts = async () => {
   try {
     const response = await axios.get(`${API_BASE_URL}/posts`);

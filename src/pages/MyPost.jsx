@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FileEdit, Trash2 } from "lucide-react";
+import { getPosts } from "../Services/postServices.js";
 
 const MyPost = () => {
   const navigate = useNavigate();
@@ -10,25 +11,20 @@ const MyPost = () => {
   useEffect(() => {
     const fetchMyPosts = async () => {
       try {
-        const response = await fetch(
-          "https://quickblog-api.onrender.com/api/posts/my-posts",
-          {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${JSON.parse(localStorage.getItem("token"))}`,
-            },
-          },
-        );
-
-        if (!response.ok) {
-          throw new Error("Không thể tải danh sách bài viết");
+        const token = localStorage.getItem("token");
+        if (!token) {
+          navigate("/login");
+          return;
         }
-
-        const data = await response.json();
-        setPosts(data);
+        const allPosts = await getPosts();
+        const user = JSON.parse(localStorage.getItem("user"));
+        const filterPosts = allPosts.items;
+        const userPosts = filterPosts.filter(
+          (post) => post.author._id === user.id || post.author._id === user._id,
+        );
+        setPosts(userPosts);
       } catch (error) {
-        console.error("Lỗi khi fetch data:", error);
+        console.error("Error fetching posts:", error);
       } finally {
         setIsLoading(false);
       }

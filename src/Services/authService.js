@@ -20,3 +20,16 @@ export const loginUser = async (userData) => {
     throw error;
   }
 };
+
+export const getMe = async (token) => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/auth/me`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};

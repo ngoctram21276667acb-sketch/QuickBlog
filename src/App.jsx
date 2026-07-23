@@ -7,6 +7,7 @@ import Register from "./pages/Register";
 import { BlogDetails } from "./pages/BlogDetails";
 import MyPost from "./pages/MyPost";
 import CreateBlog from "./pages/CreateBlog";
+import UserManagement from "./pages/UserManagement";
 
 import Layout from "./components/Layout";
 
@@ -66,6 +67,18 @@ function App() {
               isLoggedIn ? (
                 <Layout darkMode={darkMode} setDarkMode={setDarkMode}>
                   <MyPost />
+                </Layout>
+              ) : (
+                <Navigate to="/login" replace />
+              )
+            }
+          />
+          <Route
+            path="/user-management"
+            element={
+              isLoggedIn ? (
+                <Layout darkMode={darkMode} setDarkMode={setDarkMode}>
+                  <UserManagement />
                 </Layout>
               ) : (
                 <Navigate to="/login" replace />

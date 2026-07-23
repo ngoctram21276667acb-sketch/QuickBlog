@@ -12,6 +12,11 @@ function Register() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
+  const extractToken = (response) => {
+    if (typeof response === "string") return response;
+    return response?.token || response?.accessToken || response?.data?.token;
+  };
+
   // Hàm xử lý đăng ký
   const handleRegister = async () => {
     setLoading(true);
@@ -24,7 +29,11 @@ function Register() {
         password,
       });
 
-      localStorage.setItem("token", JSON.stringify(response));
+      const token = extractToken(response);
+
+      if (token) {
+        localStorage.setItem("token", token);
+      }
 
       window.location.href = "/";
     } catch (err) {

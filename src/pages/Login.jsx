@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import logo from "../assets/logo.png";
 import { Link, useNavigate } from "react-router-dom";
-import { loginUser } from "../Services/authService.js";
+import { getMe, loginUser } from "../Services/authService.js";
 import { toast } from "react-hot-toast";
 
 function Login() {
@@ -29,14 +29,29 @@ function Login() {
         password,
       });
 
-      localStorage.setItem("token", JSON.stringify(response));
+      const token = response.accessToken;
 
-      // Hiển thị thông báo đăng nhập thành công
+      if (!token) {
+        throw new Error("Không tìm thấy token trong phản hồi đăng nhập");
+      }
+
+      const meResponse = await getMe(token);
+      const user = meResponse?.user;
+
+      localStorage.setItem("token", token);
+      if (user) {
+        localStorage.setItem("user", JSON.stringify(user));
+      }
+
       toast.success("Login successful");
-
       navigate("/");
     } catch (err) {
-      setError("Sai email hoặc mật khẩu");
+      setError(
+        err.response?.data?.message ||
+          err.response?.data?.error ||
+          err.message ||
+          "Sai email hoặc mật khẩu",
+      );
     } finally {
       setLoading(false);
     }
@@ -45,13 +60,11 @@ function Login() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-[#1e1b4b] via-[#4f46e5] to-[#22d3ee] p-4">
       <div className="w-full max-w-[400px] rounded-xl bg-white p-8 shadow-2xl sm:p-10">
-        {/* Logo */}
         <div className="mb-8 flex justify-center">
           <img src={logo} alt="Logo" className="h-10 w-auto" />
         </div>
 
         <form className="space-y-4" onSubmit={handleLogin}>
-          {/* Email */}
           <div>
             <input
               type="email"
@@ -63,7 +76,6 @@ function Login() {
             />
           </div>
 
-          {/* Password */}
           <div>
             <input
               type="password"
@@ -75,10 +87,8 @@ function Login() {
             />
           </div>
 
-          {/* Hiển thị lỗi */}
           {error && <p className="text-sm text-red-500">{error}</p>}
 
-          {/* Nút Login */}
           <button
             type="submit"
             disabled={loading}
